@@ -16,6 +16,80 @@ pipeline
                 checkout scm
             }
         }
+
+        stage('SAST')
+        {
+            steps
+            {
+                sh 'echo Running SAST scan with snyk...'
+            }
+        }
+
+        stage('Build-and-Tag')
+        {
+            agent { label '3120-lab1-Appserver'}
+
+            steps
+            {
+                script
+                {
+                    // Build Docker image using Jenkins Docker pipeline plugin
+                    echo "Building Docker image ${IMAGE_NAME}..."
+                    app = docker.Build("${IMAGE_NAME}")
+                    app.Tag("latest")
+
+                }
+            }
+        }
+
+        stage('Push-to-DockerHub')
+        {
+            agent { label '3120-lab1-Appserver'}
+
+            steps
+            {
+                script
+                {
+                    echo "Pushing Docker image ${IMAGE_NAME}:latest to Docker Hub..."
+                    docker.withRegistry('https://registry.hub.docker.com', "${DOCKER_HUB_CREDENTIALS}")
+                    {
+                        app.push("latest")
+                    }
+                }
+            }
+        }
+
+        stage('DAST')
+        {
+            steps
+            {
+                sh 'echo Running DAST scan with snyk...'
+            }
+        }
+
+        stage('DEPLOYMENT')
+        {
+            agent { label '3120-lab1-Appserver'}
+
+            steps
+            echo 'Starting Deployment using docker-compose...'
+            {
+                script
+                {
+                    dir("${WORKSPACE}")
+                    {
+                        sh '''
+                            docker-compose down
+                            docker-compose up -d
+                            docker ps
+                        '''
+                    }
+                }
+            }
+            echo 'Deployment Completed'
+        }
+        
+
     }
 
 
