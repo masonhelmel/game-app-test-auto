@@ -72,8 +72,8 @@ pipeline
             agent { label '3120-lab1-Appserver'}
 
             steps
-            echo 'Starting Deployment using docker-compose...'
             {
+                echo 'Starting Deployment using docker-compose...'
                 script
                 {
                     dir("${WORKSPACE}")
@@ -84,9 +84,11 @@ pipeline
                             docker ps
                         '''
                     }
+                    
                 }
+                echo 'Deployment Completed'
             }
-            echo 'Deployment Completed'
+            
         }
         
 
