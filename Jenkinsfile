@@ -17,11 +17,20 @@ pipeline
             }
         }
 
-        stage('SAST')
+        stage('SCA-SAST-TEST')
         {
+            agent any
             steps
             {
-                sh 'echo Running SAST scan with snyk...'
+                script
+                {
+                    snykSecurity
+                    (
+                        snykInstallation: 'Snyk-Install',
+                        snykTokenId: 'Snyk-API-token',
+                        severity: 'critical'
+                    )
+                }
             }
         }
 
