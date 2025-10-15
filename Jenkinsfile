@@ -24,8 +24,7 @@ pipeline
             {
                 script
                 {
-                    snykSecurity
-                    (
+                    snykSecurity(
                         snykInstallation: 'Snyk-Install',
                         snykTokenId: 'Snyk-API-token',
                         severity: 'critical'
